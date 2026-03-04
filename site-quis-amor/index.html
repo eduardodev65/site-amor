@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosso Quiz Especial</title>
+    <style>
+        /* Estilos Gerais */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff; 
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden; 
+            position: relative;
+            padding: 20px 0; 
+        }
+
+        .container {
+            width: 95%;
+            max-width: 650px; 
+            text-align: center;
+            z-index: 10; 
+            padding: 15px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fbc02d; 
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .pergunta {
+            font-size: 1.3rem;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            font-family: inherit;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .botoes { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+
+        .btn-sim, .btn-proxima { background-color: #4caf50; color: white; width: 100%; max-width: 200px; }
+        .btn-sim:hover, .btn-proxima:hover { background-color: #43a047; }
+        .btn-nao { background-color: #f44336; color: white; width: 100%; max-width: 200px; }
+        .btn-nao:hover { background-color: #e53935; }
+
+        .opcoes-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+        .btn-opcao {
+            background-color: #fff9c4; 
+            color: #f57f17; 
+            border: 1px solid #fff59d;
+            width: 100%;
+            max-width: 350px;
+        }
+        .btn-opcao:hover { background-color: #fff59d; border-color: #fbc02d; }
+
+        input[type="text"] {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 50px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 300px;
+            font-family: inherit;
+        }
+        input[type="text"]:focus { border-color: #fbc02d; outline: none; }
+
+        .obs { font-size: 0.85rem; color: #888; font-style: italic; margin-bottom: 25px; }
+        .mensagem { margin-top: 25px; font-size: 1.1rem; font-weight: 600; min-height: 1.4em; }
+
+        .etapa { display: none; }
+        .ativa { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- CARROSSEL --- */
+        .carrossel-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px; 
+            margin: 20px auto; 
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            border: 4px solid #fff9c4;
+            background-color: #fff;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 550px; 
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        .slide.ativo-slide {
+            display: block;
+            animation: fadeImg 1s; 
+        }
+
+        @keyframes fadeImg {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+
+        /* --- CARTINHA --- */
+        .carta-final {
+            margin-top: 30px;
+            padding: 30px;
+            background-color: #fffde7; 
+            border-left: 5px solid #fbc02d;
+            border-radius: 8px;
+            font-size: 1.25rem; 
+            line-height: 1.7; 
+            color: #444;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-style: italic;
+        }
+
+        /* --- VÍDEO --- */
+        .video-container {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .video-final {
+            width: 100%;
+            max-width: 320px; 
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 4px solid #fff9c4;
+            background-color: #000;
+        }
+
+        .texto-video {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: #555;
+            padding: 0 10px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        /* --- GIRASSÓIS --- */
+        .flower-decor {
+            position: fixed;
+            width: 150px;
+            height: 150px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='10' fill='%235d4037'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(30 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(60 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(90 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(120 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(150 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(180 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(210 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(240 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(270 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(300 50 50)'/%3E%3Cpath d='M50 40 Q55 20 50 10 Q45 20 50 40 Z' fill='%23fbc02d' transform='rotate(330 50 50)'/%3E%3Cpath d='M40 70 Q30 80 40 90 Q50 80 40 70 Z' fill='%234caf50' transform='rotate(-45 50 50)'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .tl { top: -20px; left: -20px; transform: rotate(-15deg); width: 180px; height: 180px; }
+        .tr { top: 10px; right: -30px; transform: rotate(15deg) scale(0.8); }
+        .bl { bottom: 10px; left: -30px; transform: rotate(15deg) scale(0.8); }
+        .br { bottom: -30px; right: -20px; transform: rotate(-15deg); width: 180px; height: 180px; }
+
+        /* --- ADAPTAÇÃO PARA CELULAR --- */
+        @media (max-width: 600px) {
+            .logo { font-size: 2rem; }
+            .pergunta { font-size: 1.15rem; }
+            
+            /* Ajuste das flores para não atrapalhar o toque na tela */
+            .flower-decor { width: 80px; height: 80px; }
+            .tl { top: -10px; left: -10px; }
+            .tr { top: 5px; right: -15px; }
+            .bl { bottom: 5px; left: -15px; }
+            .br { bottom: -15px; right: -15px; }
+            
+            /* Ajustes no layout final */
+            .slide { height: 400px; } 
+            .carta-final { font-size: 1.05rem; padding: 20px; margin-top: 20px; }
+            .texto-video { font-size: 1.05rem; }
+            .video-final { max-width: 100%; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="flower-decor tl"></div>
+    <div class="flower-decor tr"></div>
+    <div class="flower-decor bl"></div>
+    <div class="flower-decor br"></div>
+
+    <div class="container">
+        <div id="etapa1" class="etapa ativa">
+            <div class="logo">Bem vinda ao nosso quiz</div>
+            <div class="pergunta">Você está preparada para começar?</div>
+            <div class="botoes">
+                <button class="btn-sim" onclick="proximaEtapa('etapa1', 'etapa2')">Sim</button>
+                <button class="btn-nao" onclick="alert('Ah, tudo bem! Volta quando estiver pronta. 😉')">Não</button>
+            </div>
+        </div>
+
+        <div id="etapa2" class="etapa">
+            <div class="logo">Pergunta 1</div>
+            <div class="pergunta">Qual foi a data que eu falei eu te amo?</div>
+            <input type="text" id="resposta1" placeholder="Ex: 18/4">
+            <div class="obs">Obs: não esqueça a /</div>
+            <button class="btn-sim" onclick="verificarResposta1()">Responder</button>
+            <div id="mensagem1" class="mensagem"></div>
+            <div id="btn-proxima1" style="display: none; margin-top: 20px;">
+                <button class="btn-proxima" onclick="proximaEtapa('etapa2', 'etapa3')">Próxima Pergunta ➔</button>
+            </div>
+        </div>
+
+        <div id="etapa3" class="etapa">
+            <div class="logo">Pergunta 2</div>
+            <div class="pergunta">Quando foi nosso 1º date?</div>
+            <div class="opcoes-container">
+                <button class="btn-opcao" onclick="verificarResposta2('13/2')">13/2</button>
+                <button class="btn-opcao" onclick="verificarResposta2('9/1')">9/1</button>
+                <button class="btn-opcao" onclick="verificarResposta2('20/1')">20/1</button>
+                <button class="btn-opcao" onclick="verificarResposta2('31/2')">31/2</button>
+            </div>
+            <div id="mensagem2" class="mensagem"></div>
+            <div id="btn-proxima2" style="display: none; margin-top: 20px;">
+                <button class="btn-proxima" onclick="proximaEtapa('etapa3', 'etapa4')">Próxima Pergunta ➔</button>
+            </div>
+        </div>
+
+        <div id="etapa4" class="etapa">
+            <div class="logo">Pergunta 3</div>
+            <div class="pergunta">Qual é minha cor favorita?</div>
+            <div class="opcoes-container">
+                <button class="btn-opcao" onclick="verificarResposta3('branco')">Branco</button>
+                <button class="btn-opcao" onclick="verificarResposta3('azul')">Azul</button>
+                <button class="btn-opcao" onclick="verificarResposta3('preto')">Preto</button>
+                <button class="btn-opcao" onclick="verificarResposta3('vermelho')">Vermelho</button>
+            </div>
+            <div id="mensagem3" class="mensagem"></div>
+            <div id="btn-proxima3" style="display: none; margin-top: 20px;">
+                <button class="btn-proxima" onclick="proximaEtapa('etapa4', 'etapa5')">Vamos para última pergunta</button>
+            </div>
+        </div>
+
+        <div id="etapa5" class="etapa">
+            <div class="logo">Última Pergunta</div>
+            <div class="pergunta">Porque eu te amo?</div>
+            <div class="opcoes-container">
+                <button class="btn-opcao" onclick="verificarResposta4('feliz')">Pq vc me faz feliz</button>
+                <button class="btn-opcao" onclick="verificarResposta4('caralho')">Pq eu te amo pra caralho</button>
+                <button class="btn-opcao" onclick="verificarResposta4('ensinou')">Pq vc me ensinou a amar dnv</button>
+                <button class="btn-opcao" onclick="verificarResposta4('todas')">Todas as opções acima</button>
+            </div>
+            <div id="mensagem4" class="mensagem"></div>
+            <div id="btn-finalizar" style="display: none; margin-top: 20px;">
+                <button class="btn-proxima" onclick="proximaEtapa('etapa5', 'etapa-final')">Finalizar Quiz ❤️</button>
+            </div>
+        </div>
+
+        <div id="etapa-final" class="etapa">
+            <div class="logo">Parabéns!</div>
+            <div class="pergunta" style="margin-bottom: 5px;">Você acertou tudo e provou que é o amor da minha vida!</div>
+            
+            <div class="carrossel-container">
+                <img src="img/WhatsApp Image 2026-02-07 at 10.41.30.jpeg" class="slide ativo-slide">
+                <img src="img/WhatsApp Image 2026-02-09 at 15.23.36.jpeg" class="slide">
+                <img src="img/WhatsApp Image 2026-02-15 at 20.18.53.jpeg" class="slide">
+                <img src="img/WhatsApp Image 2026-02-15 at 20.18.55 (1).jpeg" class="slide">
+                <img src="img/WhatsApp Image 2026-02-15 at 20.18.55 (2).jpeg" class="slide">
+                <img src="img/WhatsApp Image 2026-02-15 at 20.18.55.jpeg" class="slide">
+                <img src="img/WhatsApp Image 2026-03-01 at 23.48.34.jpeg" class="slide">
+            </div>
+
+            <div class="carta-final">
+                Oiee kk. Eu não pensei em nada específico para te dizer, então só vou me abrir e dizer o que eu sinto: eu te amo. Mas não é apenas amor, Camilla. Todo dia eu acordo e lembro que tenho do meu lado a pessoa mais incrível desse mundo. Eu amo te mandar todos os dias aquele "bom dia my life". 
+                <br><br>
+                Às vezes eu penso: será que eu já deveria ter pedido ela em namoro? Porque eu já pensei até em como faria isso, já imaginei cada cena... Enfim, eu quero te agradecer por me ensinar a amar de novo. Será que já tá na hora de dizer que você é tudo pra mim? kkk. 
+                <br><br>
+                Te amo muito, tipo, pra caralho ♥️
+            </div>
+
+            <div class="video-container">
+                <video src="img/WhatsApp Video 2026-03-03 at 22.22.27.mp4" class="video-final" autoplay loop muted playsinline></video>
+                <div class="texto-video">
+                    "Inclusive, esse foi um dos dias mais felizes com você (pra mim, pelo menos). Foi aí que eu percebi que estava te amando. Aconteceu de uma forma tão natural que eu me arrependo de não ter te falado naquele momento. Eu até chorei de felicidade kkkk, porque ali eu tive certeza de que te amava de verdade."
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function proximaEtapa(atual, proxima) {
+            document.getElementById(atual).classList.remove('ativa');
+            setTimeout(() => {
+                document.getElementById(proxima).classList.add('ativa');
+                // Rola a página para o topo ao trocar de tela no celular
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        function verificarResposta1() {
+            let resposta = document.getElementById('resposta1').value.trim();
+            let divMensagem = document.getElementById('mensagem1');
+            let divProxima = document.getElementById('btn-proxima1');
+            if (resposta === '13/2') {
+                divMensagem.innerHTML = "Olha ela lembrou, parabéns! 🎉"; divMensagem.style.color = "#4caf50"; divProxima.style.display = "block";
+            } else {
+                divMensagem.innerHTML = "Não acredito que você errouuu!!! 😱"; divMensagem.style.color = "#f44336"; divProxima.style.display = "none";
+            }
+        }
+
+        function verificarResposta2(resposta) {
+            let divMensagem = document.getElementById('mensagem2');
+            let divProxima = document.getElementById('btn-proxima2');
+            if (resposta === '9/1') {
+                divMensagem.innerHTML = "Acertou em cheio! 😍"; divMensagem.style.color = "#4caf50"; divProxima.style.display = "block";
+            } else {
+                divMensagem.innerHTML = "Vish... errou! Tenta de novo! 😅"; divMensagem.style.color = "#f44336"; divProxima.style.display = "none";
+            }
+        }
+
+        function verificarResposta3(resposta) {
+            let divMensagem = document.getElementById('mensagem3');
+            let divProxima = document.getElementById('btn-proxima3');
+            if (resposta === 'preto') {
+                divMensagem.innerHTML = "Isso aí! Acertou! 🖤"; divMensagem.style.color = "#4caf50"; divProxima.style.display = "block";
+            } else {
+                divMensagem.innerHTML = "Errou feio! 😆"; divMensagem.style.color = "#f44336"; divProxima.style.display = "none";
+            }
+        }
+
+        function verificarResposta4(resposta) {
+            let divMensagem = document.getElementById('mensagem4');
+            let divProxima = document.getElementById('btn-finalizar');
+            if (resposta === 'todas') {
+                divMensagem.innerHTML = "Exatamente! Você é tudo para mim! ❤️"; divMensagem.style.color = "#fbc02d"; divProxima.style.display = "block";
+            } else {
+                divMensagem.innerHTML = "Essa também é verdade, mas tem uma resposta mais completa... 😉"; divMensagem.style.color = "#f44336"; divProxima.style.display = "none";
+            }
+        }
+
+        // --- LÓGICA DO CARROSSEL ---
+        let slideAtual = 0;
+        let timerCarrossel;
+
+        function mostrarSlide(index) {
+            let slides = document.getElementsByClassName("slide");
+            if (!document.getElementById('etapa-final').classList.contains('ativa')) return;
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("ativo-slide");
+            }
+            if (index >= slides.length) slideAtual = 0;
+            if (index < 0) slideAtual = slides.length - 1;
+            slides[slideAtual].classList.add("ativo-slide");
+        }
+
+        function passarSlideAutomatico() {
+            slideAtual++;
+            mostrarSlide(slideAtual);
+        }
+
+        function resetarTimer() {
+            clearInterval(timerCarrossel);
+            timerCarrossel = setInterval(passarSlideAutomatico, 8000); 
+        }
+
+        timerCarrossel = setInterval(passarSlideAutomatico, 8000);
+
+    </script>
+</body>
+</html>
